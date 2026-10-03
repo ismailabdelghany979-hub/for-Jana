@@ -1,0 +1,576 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>الرسالة الأخيرة</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-dark: #0f0f11;
+            --card-bg: #16161a;
+            --text-main: #e0e0e6;
+            --text-muted: #a0a0aa;
+            --accent-crimson: #8b1e2f;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: radial-gradient(circle at center, #1a1a22 0%, var(--bg-dark) 100%);
+            min-height: 100vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 60px 20px;
+            position: relative;
+        }
+
+        /* تأثير جزيئات هادئة وباهتة في الخلفية */
+        .bg-particles {
+            position: fixed;
+            width: 100%; height: 100%;
+            top: 0; left: 0;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .sparkle-node {
+            position: absolute;
+            bottom: -50px;
+            opacity: 0;
+            animation: fallUpwards 8s linear infinite;
+        }
+
+        @keyframes fallUpwards {
+            0% { transform: translateY(0) scale(0.6); opacity: 0; }
+            20% { opacity: 0.3; }
+            80% { opacity: 0.2; }
+            100% { transform: translateY(-120vh) scale(1); opacity: 0; }
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ✉️ شاشة الظرف الأولى */
+        .envelope-view {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            margin-top: 5vh;
+        }
+
+        .main-heading {
+            font-size: 42px;
+            font-weight: 900;
+            color: var(--text-main);
+            margin-bottom: 8px;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.6);
+        }
+
+        .sub-heading {
+            font-size: 18px;
+            color: var(--text-muted);
+            margin-bottom: 45px;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        .envelope-wrapper {
+            width: 340px;
+            height: 230px;
+            background: #1c1c22;
+            border-radius: 0 0 14px 14px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.4s ease;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .envelope-wrapper:hover {
+            transform: scale(1.02) translateY(-5px);
+            box-shadow: 0 40px 70px rgba(0,0,0,0.9);
+        }
+
+        .envelope-wrapper::before {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0;
+            width: 0; height: 0;
+            border-left: 170px solid transparent;
+            border-right: 170px solid transparent;
+            border-bottom: 120px solid #25252d;
+            border-radius: 0 0 14px 14px;
+        }
+
+        .top-lid {
+            position: absolute;
+            top: 0; left: 0;
+            width: 0; height: 0;
+            border-left: 170px solid transparent;
+            border-right: 170px solid transparent;
+            border-top: 120px solid #141418;
+            transform-origin: top;
+            transition: transform 0.5s ease;
+        }
+
+        .gold-seal {
+            position: absolute;
+            top: 95px; left: 145px;
+            width: 50px; height: 50px;
+            background: var(--accent-crimson);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.4s ease;
+        }
+
+        .action-hint {
+            margin-top: 45px;
+            color: var(--text-muted);
+            font-size: 15px;
+            font-weight: 400;
+            animation: pulseHint 2s infinite;
+        }
+
+        @keyframes pulseHint {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.01); color: var(--text-main); }
+        }
+
+        /* 🔐 نافذة الباسورد المنبثقة */
+        .password-modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(10, 10, 12, 0.9);
+            backdrop-filter: blur(8px);
+            z-index: 500;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .modal-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 40px 30px;
+            border-radius: 16px;
+            text-align: center;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.7);
+            animation: scaleUp 0.4s cubic-bezier(0.1, 1, 0.1, 1) forwards;
+        }
+
+        @keyframes scaleUp {
+            from { transform: scale(0.9); } to { transform: scale(1); }
+        }
+
+        .modal-card h3 {
+            color: var(--text-main);
+            font-size: 18px;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+
+        .modal-card input {
+            width: 100%;
+            padding: 12px;
+            font-size: 22px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.15);
+            background: var(--bg-dark);
+            color: var(--text-main);
+            text-align: center;
+            letter-spacing: 6px;
+            outline: none;
+            margin-bottom: 25px;
+            transition: border-color 0.3s;
+        }
+
+        .modal-card input:focus {
+            border-color: var(--accent-crimson);
+        }
+
+        .modal-card button {
+            background: var(--accent-crimson);
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.2s;
+        }
+
+        .modal-card button:hover { background: #a32337; transform: scale(1.02); }
+        
+        .shake-animation { animation: shake 0.4s ease; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+
+        /* 📜 شاشة الرسالة - ستايل الكراسة المسطرة */
+        .message-view {
+            display: none;
+            width: 100%;
+            background: var(--card-bg);
+            /* صنع تأثير السطور الأفقية للكراسة داخل الخلفية */
+            background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 100% 44px; /* متناسق تماماً مع الـ line-height */
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 40px 40px;
+            box-shadow: 0 40px 90px rgba(0,0,0,0.8);
+            animation: slideInEpic 1.2s cubic-bezier(0.1, 1, 0.1, 1) forwards;
+            position: relative;
+        }
+
+        /* خط الهامش الجانبي الأحمر للكراسة */
+        .message-view::before {
+            content: '';
+            position: absolute;
+            top: 0; bottom: 0; right: 30px;
+            width: 1px;
+            background: rgba(139, 30, 47, 0.4);
+            pointer-events: none;
+        }
+
+        @keyframes slideInEpic {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .live-text-box {
+            font-size: 16px;
+            line-height: 44px; /* مسافة السطر متطابقة مع حجم السطور المرسومة */
+            color: #d1d1d6;
+            text-align: justify;
+            white-space: pre-wrap;
+            font-weight: 400;
+            padding-right: 10px; /* لإبعاد الكلام قليلاً عن خط الهامش */
+        }
+
+        .live-cursor {
+            display: inline-block;
+            width: 2px; height: 18px;
+            background-color: var(--accent-crimson);
+            margin-right: 4px;
+            animation: cursorBlink 0.9s infinite;
+            vertical-align: middle;
+        }
+        @keyframes cursorBlink { 50% { opacity: 0; } }
+
+        .signature-zone {
+            text-align: left;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-muted);
+            border-left: 3px solid var(--accent-crimson);
+            padding-left: 15px;
+            margin-top: 45px;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        /* 🎵 مشغل الأغنية المخفي */
+        .music-hidden-zone {
+            position: absolute;
+            width: 0; height: 0;
+            overflow: hidden;
+            opacity: 0;
+        }
+
+        @media (max-width: 768px) {
+            .message-view { padding: 35px 20px; background-size: 100% 40px; }
+            .message-view::before { right: 15px; }
+            .live-text-box { font-size: 14px; line-height: 40px; text-align: right; padding-right: 5px; }
+            .main-heading { font-size: 32px; }
+            .envelope-wrapper { width: 280px; height: 190px; }
+            .envelope-wrapper::before { border-left: 140px solid transparent; border-right: 140px solid transparent; border-bottom: 100px solid #25252d; }
+            .top-lid { border-left: 140px solid transparent; border-right: 140px solid transparent; border-top: 100px solid #141418; }
+            .gold-seal { left: 115px; top: 70px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="bg-particles" id="sparksLayer"></div>
+
+    <div class="app-container">
+
+        <div class="envelope-view" id="envelopeScreen">
+            <h1 class="main-heading">رسالة أخيرة</h1>
+            <p class="sub-heading">إلى من كانت تشاركني تفاصيل الأيام</p>
+            
+            <div class="envelope-wrapper" onclick="showPasswordModal()">
+                <div class="top-lid" id="envelopeLid"></div>
+                <div class="gold-seal" id="envelopeSeal">✉️</div>
+            </div>
+            
+            <div class="action-hint">اضغطي على الختم لقراءة الكلمات الأخيرة ⏳</div>
+        </div>
+
+        <div class="password-modal" id="passwordModal">
+            <div class="modal-card" id="modalCard">
+                <h3>أدخلي الرقم السري لفتح صندوق الذكريات 🔑</h3>
+                <input type="password" id="passwordInput" placeholder="••••••" maxlength="10">
+                <br>
+                <button onclick="verifySecretPassword()">فتح الرسالة</button>
+            </div>
+        </div>
+
+        <div class="message-view" id="messageScreen">
+            
+            <div class="live-text-box" id="typingEngineField"></div><span class="live-cursor" id="typeCursor"></span>
+
+            <div class="signature-zone" id="signatureZone">إسماعيل</div>
+
+            <!-- مشغل اليوتيوب المخفي للأغنية الحزينة -->
+            <div class="music-hidden-zone">
+                <iframe 
+                    id="youtubeTrack"
+                    src="" 
+                    allow="autoplay; encrypted-media">
+                </iframe>
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const finalMessageText = `أول مرة قابلتها كانت يوم ٤ رمضان واليوم ده مستحيل أنساه مهما حصل ومهما عدى عليه سنين لأنه ببساطة كان اليوم اللي حياتي اتغيرت فيه من غير ما أخد بالي كنت فاكر إنه يوم عادي زي أي يوم وهروح وأرجع وأنام وخلاص لكن ربنا كان كاتب إن اليوم ده يبقى بداية حكاية عمري كلها أول ما شوفتها محستش بحاجة غريبة ولا حصلتلي الأفلام اللي بيقولو عليها بس اللي حصل إني فضلت باصص عليها شوية وبعدين قولت لنفسي البنت دي مختلفة مش عارف ليه ولا إزاي بس كان فيها حاجة مريحة بشكل غريب يمكن هدوءها يمكن طريقتها أو يمكن الابتسامة اللي كانت على وشها من غير تكلف ومن ساعتها وأنا بقيت مستني أي فرصة أشوفها أو أتكلم معاها حتى لو دقيقة واحدة
+
+ومع الأيام الكلام بينا زاد واحدة واحدة من غير ما نحس بقينا نعرف تفاصيل يوم بعض بقينا نضحك على حاجات محدش غيرنا ممكن يضحك عليها وبقيت كل ما يحصل معايا حاجة أول حد ييجي في بالي أحكيله هي وكل مرة كنت أتكلم معاها كنت بحس إن اليوم بقى أخف حتى لو كنت مضغوط أو زعلان كانت بتعرف تغير مودي من غير ما تقصد وكانت دي من الحاجات اللي خلتها مختلفة بالنسبة لي
+
+ناس كتير ممكن تشوفها بنت عادية لكن بالنسبة لي كانت أحسن بنت قابلتها في حياتي كلها وعمري ما شوفت منها تكبر ولا تصنع ولا غرور كانت بسيطة بشكل يخليك تحب تتعامل معاها من غير ما تحس بأي ضغط كنت ساعات أقعد أدور على عيب فيها وأقول أكيد مفيش حد كامل لكن كل مرة كنت أفشل وفي الآخر كنت بهزر معاها وأقولها إن العيب الوحيد اللي فيها إنها تظبط طرحتها شوية وكانت كل مرة تضحك وتقولي مالها طرحتى فأقولها لا أصل أنا دقيق وهي تضحك وخلاص وكانت المواقف الصغيرة دي بالنسبالي تساوي الدنيا
+
+يمكن هي عمرها ما كانت تعرف إن التفاصيل الصغيرة دي هي اللي خلتني أحبها أكتر لأن الحب بالنسبالي عمره ما كان كلام كبير ولا هدايا ولا خروجات الحب الحقيقي كان إنك تبقى مبسوط من وجود الشخص حتى لو واقفين ساكتين من غير كلام
+
+وبعد فترة حسيت إن اللي جوايا بقى أكبر من إني أخبيه كنت كل ما أقول النهارده هقولها أرجع في كلامي وأقول لأ يمكن أخسرها لكن في يوم أخدت القرار وقولتلها الحقيقة كلها قولتلها إني بحبها ومش شايف غيرها ومش قادر أكمل وأنا مخبي ده جوايا
+
+ردها كان هادي ومحترم وقالتلي إنها نفسها نفضل أصحاب وإنها مش عايزة نخسر بعض
+الجملة دي وقتها وجعتني أكتر ما فرحتني لأن قلبي كان مستني حاجة تانية لكن وأنا بفكر بعدها شوية حسيت إنها يمكن تكون شايفة إن ده الصح وإنها خايفة علاقتنا تضيع لو دخلنا في حاجة أكبر وأنا رغم إن قلبي كان رافض وافقت عشان وجودها في حياتي كان بالنسبالي أهم من أي مسمى
+قولتلها خلاص هنفضل أصحاب
+لكن الحقيقة إن قلبي عمره ما عرف يبقى صاحب وبس
+كل يوم كنت بحبها أكتر من اليوم اللي قبله
+
+وأكتر حاجة كانت مريحاني إن مفيش بينا تكلف كنا بنتكلم وإحنا على طبيعتنا من غير ما نمثل ولا نحاول نمبان بصورة غير حقيقتنا لو أنا متضايق تعرف ولو هي زعلانة أعرف ولو حد فينا غلط كان التاني يقوله من غير خوف
+
+الغريب إني كنت بحب لما تنكد عليا
+أي حد يسمع الجملة دي هيقول إني مجنون لكن الحقيقة إن نكدها كان معناه إنها مهتمة ولسه فارق معاها أنا عملت إيه ومعملتش إيه ولما كانت تزعل مني وتقولي إنت ضايقتني كنت ببقى مبسوط رغم الزعل لأن مجرد إنها عاتبتني كان معناه إنها مش عايزة تبعد
+
+وكان في كلمة دايمًا تقوليهالي
+ذاكر
+الكلمة دي يمكن بسيطة لأي حد لكن بالنسبالي كانت ليها قيمة كبيرة لأنها كانت بتطلع منها وهي خايفة عليا بجد كانت كل شوية تفكرني بالمذاكرة وأنا أقولها حاضر وبعد خمس دقائق تلاقيني فاتح الكتاب فعلاً ولو مكنتش موجودة يمكن كنت فضلت مأجل لحد ليلة الامتحان زي عادتي
+يمكن هي متعرفش إن تشجيعها ده كان بيفرق معايا قد إيه
+
+وكان بينا حاجة محدش هيفهمها غيرنا
+الزعفران والزعفرانة
+لحد دلوقتي لما بفتكر الاسم ده بضحك
+يمكن أي حد يسمعه يقول إيه الهزار السخيف ده لكن بالنسبالي كانت كلمة ليها روح خاصة بينا كلمة أول ما تتقال نفتكر مواقف وضحك وكلام محدش يعرفه غيرنا ودي كانت من الحاجات اللي كنت بحبها في علاقتنا إن كان لينا عالم صغير محدش بيدخله
+
+وكمان كان في اسم تاني
+جعفر النونة
+الاسم ده كان بالنسبالي كفيل يخليني أبتسم حتى لو يومي كله وحش كنت بدلعها بيه من زمان وبقيت متعود أناديها كده لحد ما الاسم بقى جزء من حياتنا
+
+ولما جه عيد ميلاد جعفر النونة فضلت أحتفل بيه كل يوم تقريبًا وأقولها كل سنة وإنتي طيبة وهي تضحك وتقولي هو عيد الميلاد بقى شهرين ولا إيه فأقولها لا ده انتي تستاهلي السنة كلها وكانت تتريق عليا وتقولي إنت غريب وأنا كنت مبسوط إنها شايفاني غريب طالما الضحكة على وشها
+
+يمكن أنا فعلاً مكنتش أحسن واحد في الدنيا ويمكن في ناس أحسن مني في حاجات كتير لكن كنت متأكد من حاجة واحدة إن محدش هيهتم بيها زي ما أنا كنت بهتم بيها كنت بلاحظ أبسط تغيير في كلامها في طريقة ردها في ضحكتها في سكوتها ولو حسيت إنها متضايقة كنتفضل أفكر ساعات إزاي أخليها ترجع تضحك حتى لو هي قالت إنها كويسة وأنا عارف إنها مش كويسة
+
+كنت عارف إنها مرت بحاجات خلتها تخاف تثق في الناس وعشان كده عمري ما كنت مستعجل كنت بقول لنفسي الثقة بتتبني يوم ورا يوم وأنا مستعد أفضل أبني فيها العمر كله المهم في يوم تصدق إني عمري ما هأذيها
+
+لكن الدنيا عمرها ما بتمشي زي ما إحنا بنتمنى
+بعد فترة حصلت أول خناقة بجد بينا
+يمكن ناس كتير تشوفها خناقة عادية لكن بالنسبة لي كانت أصعب يوم عدى عليا من ساعة ما عرفتها
+قالتلي إنها مش واثقة فيا
+فضلت باصص في الكلام ومش مستوعب
+أنا.. أنا اللي كنت بحاول كل يوم أثبتلها إني موجود
+أنا اللي كنت بخاف على زعلها أكتر من زعلي
+أنا اللي كنت بفرح لما تكلمني حتى لو دقيقة
+ازاي بعد كل ده تقول إنها مش واثقة فيا
+مقولتلهاش حاجة وقتها غير إني هفضل أثبتلها بالعِشرة مش بالكلام
+لكن الحقيقة إن الجملة دي فضلت ترن في دماغي أيام طويلة
+ولأول مرة حسيت بخوف حقيقي
+خوف من إن كل اللي بنيته يقع في لحظة
+وخوف أكبر من إني أصحى في يوم ألاقيها مش موجودة
+
+الحمد لله وقتها عدت وعديناها واتكلمنا تاني ورجعنا نهزر ونضحك كأن مفيش حاجة حصلت وأنا قولت لنفسي يمكن دي كانت مجرد فترة وهتعدي ويمكن الثقة محتاجة وقت أكتر وأنا مكنش عندي مشكلة أستنى لأن اللي بيحب بجد بيستحمل
+
+بعدها بفترة طويلة مبقتش أكتب في النوت زي الأول بس ده مكنش معناه إني نسيت بالعكس أنا كنت فاكر كل حاجة كل موقف وكل كلمة وكل ضحكة وكل مرة قالتلي ذاكر وكل مرة نادتني باسمي بطريقة مختلفة كنت فاكر كل حاجة كأنها حصلت امبارح
+
+وفي يوم فتحت النوت وكتبت بقالي كتير مكنبتش بس عادي أنا فاكر كل حاجة كده كده
+مكنتش أعرف وقتها إن الجملة دي هتبقى بداية آخر فصل في الحكاية
+بدأت أحس إنها اتغيرت
+مش التغيير اللي يبان مرة واحدة لا التغيير اللي بيحصل واحدة واحدة لحد ما تلاقي الشخص اللي قدامك مبقاش هو هو
+ردودها بقت أقل
+حكاياتها قلت
+بقيت أعرف إن في حاجة حصلت معاها بعد ما كانت زمان أول واحدة تيجي تحكيهالي
+مكنتش بعاتبها كل مرة لأن كنت بقول يمكن مشغولة يمكن مضغوطة يمكن عندها ظروف لكن جوايا كان في إحساس بيكبر كل يوم إن المسافة اللي بينا بتزيد وأنا مش عارف أقفلها
+وأكتر حاجة كانت بتوجعني إني مكنتش فاهم السبب
+أنا عملت إيه.. قصرت في إيه.. زعلتها إمتى؟
+كل الأسئلة دي كانت بتلف في دماغي ومكنتش بلاقي إجابة
+
+وفي مرة كتبت: معرفش في إيه بس هي اتغيرت معايا أوي وأنا زعلان مبقتش تحكيلي زي الأول وتشاركني أي حاجة وأنا بجد زعلان
+وبعدها كتبت: خلاص مش قادر أكمل كتابة
+لأن ساعات الإنسان بيبقى عنده كلام كتير قوي لكن ميعرفش يكتبه
+
+كنت كل يوم أقول بكرة هترجع زي الأول
+وبكرة ييجي وأقول يمكن بعده
+وأفضل مستني
+يمكن الغلط كان إني كنت متمسك بذكرياتنا أكتر من الواقع
+كنت كل ما نفتكر الزعفران والزعفرانة أبتسم
+كل ما أفتكر جعفر النونة أضحك
+كل ما أفتكر عتابها وهي بتقولي ذاكر أحس إن في حد كان خايف عليا بجد
+لكن الذكريات مهما كانت حلوة مبتغيرش الواقع
+
+وفي يوم قعدنا واتكلمنا
+أول مرة كل واحد فينا يطلع اللي جواه كله
+قولتلها كل حاجة كانت مضايقاني وهي كمان قالت كل اللي مضايقها واتصالحنا
+وساعتها حسيت إن الدنيا رجعت زي الأول وقولت الحمد لله
+طالما عرفنا نتكلم يبقى لسه في أمل
+بس مكنتش أعرف إن أوقات الصلح بيكون آخر محاولة قبل النهاية
+
+عدت الأيام.. والإحساس اللي جوايا مراحش
+كنت حاسس إن في حاجة اتكسرت وحاولت أصلحها بكل الطرق اللي أعرفها لكن في حاجات لما بتتكسر مبتتصلحش مهما حاولت
+يمكن أصعب حاجة في الدنيا إنك تحس إن الشخص اللي كنت مطمنله مبقتش عارف تطمن معاه
+وأنا بالنسبة ليا الثقة كانت كل حاجة
+لما حسيت إن ثقتي اتكسرت بسبب مواقف وكلام اكتشفته بعدين حسيت بخذلان عمري ما حسيت زيه
+يمكن غيري يعرف يسامح.. أنا لأ
+يمكن غيري يقدر يبدأ من جديد.. أنا لأ
+مش لأن قلبي قاسي.. لكن لأني لما بثق في حد بثق فيه من قلبي كله ولما الثقة دي تقع بحس إن جزء كبير مني وقع معاها
+
+فضلت فترة أحارب جوايا.. كل يوم أقول يمكن أنا فاهم غلط وكل يوم كنت بحاول ألاقي أي سبب يخليني أتمسك بيها لأن آخر حاجة كنت عايزها هي النهاية
+لكن في الآخر وصلت لمرحلة عرفت فيها إن التمسك لو بقى من طرف واحد بيتعب وإن الحب لوحده مش كفاية.. لازم يكون معاه صدق وراحة وثقة ولما الحاجات دي تضيع يبقى الحب نفسه بيتوجع
+
+الغريب إننا عمرنا حتى ما اتقابلنا.. كل الذكريات دي اتبنت من غير لقاء واحد ومع ذلك كانت من أكتر العلاقات اللي أثرت في حياتي.. يمكن ناس تستغرب إزاي بس اللي عاش الشعور هيفهم لأن القلوب ملهاش علاقة بالمسافات
+
+ويوم ما انتهت الحكاية.. مكنش في خناقة كبيرة ولا صوت عالي ولا كره.. كان في وجع وسكوت
+ومن يومين بس كل واحد فينا راح في طريق
+يمكن هي مرتاحة دلوقتي ويمكن أنا كمان في يوم من الأيام هبقى مرتاح
+
+بس النهارده وأنا بكتب آخر سطر في النوت معترف بحاجة واحدة
+أنا حبيتك بجد.. حبيتك بطريقة يمكن متكررتش مع حد قبلك واهتميت بيكي أكتر ما اهتميت بنفسي أوقات وكان نفسي أشوف النهاية مختلفة لكن النصيب له كلمة تانية
+
+أنا مش زعلان إنك دخلتي حياتي.. بالعكس أنا ممتن لكل لحظة حلوة عشتها.. لكل ضحكة.. لكل عتاب.. لكل مرة قولتيلي فيها ذاكر.. ولكل مرة ضحكنا فيها على الزعفران والزعفرانة.. ولكل مرة ناديتك فيها جعفر النونة.
+الحاجات دي عمرها ما هتتمسح من ذاكرتي.. لكن في نفس الوقت أنا اتعلمت إن في حاجات مينفعش أكمل بعدها وأهمها إن الثقة لما تقع صعب ترجع زي الأول.. يمكن دي طبيعتي ويمكن ده عيبي بس أنا فعلًا مش بعرف أسامح في الحاجة اللي تكسر ثقتي
+
+وفي الآخر مش شايل جوايا دعوة وحشة ليكي ولا أتمنى ليكي أي حاجة وحشة.. كل اللي بطلبه من ربنا إنه يوفقك في حياتك ويرزقك بالخير كله ويكتبلك السعادة مع الشخص اللي ربنا كاتبهولك
+
+وأما أنا.. فهفضل فاكر إن في يوم أربعة رمضان بدأت أجمل حكاية في حياتي.. وبرضه هفضل فاكر إن مش كل الحكايات الجميلة مكتوبلها تكمل.. بس كل الحكايات بتسيب جوانا حاجة.. وحكايتك سابت جوايا إن الحب الحقيقي موجود.. حتى لو نهايته كانت الوجع.`;
+
+        function showPasswordModal() {
+            const modal = document.getElementById("passwordModal");
+            modal.style.display = "flex";
+            setTimeout(() => { modal.style.opacity = "1"; }, 10);
+            document.getElementById("passwordInput").focus();
+        }
+
+        function verifySecretPassword() {
+            const inputVal = document.getElementById("passwordInput").value.trim();
+            const card = document.getElementById("modalCard");
+
+            if (inputVal === "432025") {
+                document.getElementById("passwordModal").style.display = "none";
+                executeEpicOpenTransitions();
+            } else {
+                card.classList.add("shake-animation");
+                document.getElementById("passwordInput").value = "";
+                setTimeout(() => { card.classList.remove("shake-animation"); }, 400);
+            }
+        }
+
+        function executeEpicOpenTransitions() {
+            document.getElementById("envelopeLid").style.transform = "rotateX(180deg)";
+            document.getElementById("envelopeSeal").style.transform = "scale(0)";
+            
+            setTimeout(() => {
+                document.getElementById("envelopeScreen").style.display = "none";
+                document.getElementById("messageScreen").style.display = "block";
+                
+                // تشغيل رابط أغنية اليوتيوب الحزينة تلقائياً عند الفتح
+                document.getElementById("youtubeTrack").src = "https://www.youtube.com/embed/Dnwa8_03ULY?autoplay=1";
+                runLiveTypewriterEngine();
+            }, 600);
+        }
+
+        function runLiveTypewriterEngine() {
+            const field = document.getElementById("typingEngineField");
+            let pos = 0;
+            const delaySpeed = 40; // سرعة الكتابة الهادئة للرسالة الطويلة
+
+            function typeStream() {
+                if (pos < finalMessageText.length) {
+                    field.innerHTML += finalMessageText.charAt(pos);
+                    pos++;
+                    setTimeout(typeStream, delaySpeed);
+                } else {
+                    document.getElementById("typeCursor").style.display = "none";
+                    document.getElementById("signatureZone").style.opacity = "1";
+                }
+            }
+            typeStream();
+        }
+
+        function generateContinuousSparks() {
+            const layer = document.getElementById("sparksLayer");
+            if(layer.children.length > 20) return; 
+            
+            const spark = document.createElement("div");
+            spark.classList.add("sparkle-node");
+            
+            spark.innerHTML = "•"; 
+            
+            spark.style.left = `${Math.random() * 100}vw`;
+            spark.style.fontSize = `${Math.random() * 8 + 6}px`;
+            spark.style.animationDuration = `${Math.random() * 4 + 6}s`;
+            spark.style.color = "rgba(255, 255, 255, 0.15)";
+            
+            layer.appendChild(spark);
+            setTimeout(() => spark.remove(), 8000);
+        }
+        setInterval(generateContinuousSparks, 300);
+
+        // تشغيل زر Enter للباسورد
+        document.getElementById("passwordInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                verifySecretPassword();
+            }
+        });
+    </script>
+</body>
+</html>
